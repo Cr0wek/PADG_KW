@@ -79,8 +79,7 @@ class MapbookModel:
         user.location = updated_data['location']
         user.posts = int(updated_data['posts'])
         user.img_url = updated_data['img_url']
-        user.coords = user.get_coords()
-
+        user.coords = user.get_coords_osm()
         # Update DB
         cursor = self.connection.cursor()
         query = """

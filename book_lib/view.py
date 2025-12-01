@@ -140,10 +140,11 @@ class MapbookView:
 
     def get_form_data(self):
         return {
-            'name': self.entry_name.get(),
-            'location': self.entry_loc.get(),
-            'posts': self.entry_posts.get(),
-            'img_url': self.entry_img.get()
+            'mode': self.mode.get(),
+            'p1': self.entry_1.get(),
+            'p2': self.entry_2.get(),
+            'p3': self.entry_3.get(),
+            'p4': self.entry_4.get()
         }
 
     def clear_form(self):

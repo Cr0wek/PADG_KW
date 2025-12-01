@@ -5,17 +5,19 @@ class MapbookView:
     def __init__(self, root):
         self.root = root
         self.root.title("Mapbook MVC")
-        self.root.geometry("800x870")
+        self.root.geometry("1200x870")
         self.markers = {}
 
         self._setup_frames()
-        self._setup_listbox()
+        self._setup_lists()
         self._setup_form()
         self._setup_details()
         self._setup_map()
 
     def _setup_frames(self):
         self.frame_list = Frame(self.root)
+        self.frame_list_events = Frame(self.frame_list)
+        self.frame_list_people = Frame(self.frame_list)
         self.frame_form = Frame(self.root)
         self.frame_details = Frame(self.root)
         self.frame_map = Frame(self.root)
@@ -25,10 +27,16 @@ class MapbookView:
         self.frame_details.grid(row=1, column=0, columnspan=2)
         self.frame_map.grid(row=2, column=0, columnspan=2)
 
-    def _setup_listbox(self):
-        Label(self.frame_list, text="Lista obiektów").grid(row=0, column=0, columnspan=3)
+    def _setup_lists(self):
+        self.frame_list_events.grid(row=0, column=0)
+        Label(self.frame_list_events, text="Lista wydarzeń").grid(row=0, column=0)
+        self.listbox_event = Listbox(self.frame_list_events, width=40, height=10)
+        self.listbox_event.grid(row=1, column=0)
+        
+        Label(self.frame_list, text="Lista artystów").grid(row=0, column=1)
         self.listbox = Listbox(self.frame_list, width=40, height=10)
-        self.listbox.grid(row=1, column=0, columnspan=3)
+        self.listbox.grid(row=1, column=1)
+        
 
         self.btn_details = Button(self.frame_list, text="Pokaż szczegóły")
         self.btn_details.grid(row=2, column=0)

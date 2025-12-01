@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import tkintermapview
 
 class MapbookView:
@@ -28,13 +29,18 @@ class MapbookView:
         self.frame_map.grid(row=2, column=0, columnspan=2)
 
     def _setup_lists(self):
+        # Events list
         self.frame_list_events.grid(row=0, column=0)
-        Label(self.frame_list_events, text="Lista wydarzeń").grid(row=0, column=0)
+        Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0)
         self.listbox_event = Listbox(self.frame_list_events, width=40, height=10)
         self.listbox_event.grid(row=1, column=0)
         
-        Label(self.frame_list, text="Lista artystów").grid(row=0, column=1)
-        self.listbox = Listbox(self.frame_list, width=40, height=10)
+        # People list
+        self.frame_list_people.grid(row=0, column=1)
+        self.combo_people = ttk.Combobox(self.frame_list_people, values=["Artyści", "Organizatorzy"])
+        self.combo_people.current(0)
+        self.combo_people.grid(row=0, column=1)
+        self.listbox = Listbox(self.frame_list_people, width=40, height=10)
         self.listbox.grid(row=1, column=1)
         
 
@@ -45,24 +51,51 @@ class MapbookView:
         self.btn_edit = Button(self.frame_list, text="Edytuj obiekt")
         self.btn_edit.grid(row=2, column=2)
 
-    def _setup_form(self):
-        Label(self.frame_form, text="Formularz:").grid(row=0, column=0, columnspan=2)
-        Label(self.frame_form, text="Imie: ").grid(row=1, column=0, sticky=W)
-        Label(self.frame_form, text="Lokalizacja: ").grid(row=2, column=0, sticky=W)
-        Label(self.frame_form, text="Posty: ").grid(row=3, column=0, sticky=W)
-        Label(self.frame_form, text="Img URL: ").grid(row=4, column=0, sticky=W)
+    def _setup_form(self):     
+        Label(self.frame_form, text="Formularz:").grid(row=3, column=0, columnspan=2)
+        self.mode = StringVar(value="Wydarzenie")
+        self.rb_event = Radiobutton(self.frame_form, text="Dodaj wydarzenie", variable=self.mode, value="Wydarzenie")
+        self.rb_artist = Radiobutton(self.frame_form, text="Dodaj artystę", variable=self.mode, value="Artysta")
+        self.rb_empl = Radiobutton(self.frame_form, text="Dodaj organizatora", variable=self.mode, value="Organizator")
+        self.rb_event.grid(row=0, column=0, sticky=W)
+        self.rb_artist.grid(row=1, column=0, sticky=W)
+        self.rb_empl.grid(row=2, column=0, sticky=W)
+        
+        Label(self.frame_form, text="Imie i nazwisko: ").grid(row=4, column=0, sticky=W)
+        Label(self.frame_form, text="Lokalizacja: ").grid(row=5, column=0, sticky=W)
+        Label(self.frame_form, text="--").grid(row=6, column=0, sticky=W)
+        Label(self.frame_form, text="--").grid(row=7, column=0, sticky=W)
 
-        self.entry_name = Entry(self.frame_form)
-        self.entry_name.grid(row=1, column=1)
-        self.entry_loc = Entry(self.frame_form)
-        self.entry_loc.grid(row=2, column=1)
-        self.entry_posts = Entry(self.frame_form)
-        self.entry_posts.grid(row=3, column=1)
-        self.entry_img = Entry(self.frame_form)
-        self.entry_img.grid(row=4, column=1)
+        self.entry_1 = Entry(self.frame_form)
+        self.entry_1.grid(row=4, column=1)
+        self.entry_2 = Entry(self.frame_form)
+        self.entry_2.grid(row=5, column=1)
+        self.entry_3 = Entry(self.frame_form)
+        self.entry_3.grid(row=6, column=1)
+        self.entry_4 = Entry(self.frame_form)
+        self.entry_4.grid(row=7, column=1)
 
         self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt")
-        self.btn_add_save.grid(row=5, column=0, columnspan=2)
+        self.btn_add_save.grid(row=8, column=0, columnspan=2)
+
+    def form_update_fields(self):
+        mode = self.mode.get()
+        if mode == "Wydarzenie":
+            self.entry_1.config(state='disabled')
+            self.entry_2.config(state='disabled')
+        elif mode == "Artysta":
+            self.entry_1.config(state='normal')
+            self.entry_1.delete(0, END)
+            self.entry_1.insert(0, "Gatunek")
+            self.entry_2.config(state='normal')
+            self.entry_2.delete(0, END)
+            self.entry_2.insert(0, "Pseudonim")
+        elif mode == "Organizator":
+            self.entry_1.config(state='normal')
+            self.entry_1.delete(0, END)
+            self.entry_1.insert(0, "Nazwa firmy")
+            self.entry_2.config(state='disabled')
+
 
     def _setup_details(self):
         Label(self.frame_details, text="Szczegóły obiektu").grid(row=0, column=0, sticky=W)

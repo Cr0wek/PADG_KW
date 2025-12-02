@@ -5,18 +5,39 @@ class MapbookController:
     def __init__(self, model, view):
         self.model = model
         self.view = view
-        self._bind_buttons()
-        self.load_users()
+        self.load_data()
 
-    def _bind_buttons(self):
-        self.view.btn_add_save.config(command=self.add_user)
-        self.view.btn_delete.config(command=self.delete_user)
-        self.view.btn_details.config(command=self.show_details)
-        self.view.btn_edit.config(command=self.prepare_edit)
 
-    def load_users(self):
-        users = self.model.fetch_all_users()
-        self.view.refresh_list(users)
+
+    def load_data(self):
+        self.events = self.model.fetch_events()
+        self.artists = self.model.fetch_artists()
+        self.emplotees = self.model.fetch_emplotees()
+        
+        self.view.listbox_event.delete(0, 'end')
+        for event in self.events:
+            self.view.listbox_event.insert('end', event.name)
+            self.view.map_widget.set_marker(event.coords[0], event.coords[1], text=event.name)
+            
+        self.update_people_lists() #Updating combobox
+        
+    def update_people_lists(self):
+        self.view.listbox_artist.delete(0, 'end')
+        mode=self.view.mode.get()
+        if mode=="Artysta":
+            curr_list=self.artists
+            for artist in curr_list:
+                self.view.listbox_artist.insert('end', artist.name)
+                self.view.map_widget.set_marker(artist.coords[0], artist.coords[1], text=artist.name)
+        elif mode=="Pracownik":
+            curr_list=self.emplotees
+            for emplotee in curr_list:
+                self.view.listbox_artist.insert('end', emplotee.name)
+                self.view.map_widget.set_marker(emplotee.coords[0], emplotee.coords[1], text=emplotee.name)
+
+    def combobox_changed(self, event):
+        self.view.map_widget.delete_all_marker()
+        self.load_data()
 
     def add_user(self):
         data = self.view.get_form_data()

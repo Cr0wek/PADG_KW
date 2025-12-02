@@ -61,13 +61,13 @@ class MapbookView:
         self.rb_artist.grid(row=1, column=0, sticky=W)
         self.rb_empl.grid(row=2, column=0, sticky=W)
         
-        self.label_1 = Label(self.frame_form, text="Imie i nazwisko: ")
+        self.label_1 = Label(self.frame_form, text="Nazwa wydarzenia: ")
         self.label_1.grid(row=4, column=0, sticky=W)
-        self.label_2 = Label(self.frame_form, text="Lokalizacja: ")
+        self.label_2 = Label(self.frame_form, text="Miejsce wydarzenia: ")
         self.label_2.grid(row=5, column=0, sticky=W)
-        self.label_3 = Label(self.frame_form, text="--")
+        self.label_3 = Label(self.frame_form, text="")
         self.label_3.grid(row=6, column=0, sticky=W)
-        self.label_4 = Label(self.frame_form, text="--")
+        self.label_4 = Label(self.frame_form, text="")
         self.label_4.grid(row=7, column=0, sticky=W)
 
         self.entry_1 = Entry(self.frame_form)
@@ -94,8 +94,8 @@ class MapbookView:
             self.entry_4.config(state='disabled')
             self.label_1.config(text="Nazwa wydarzenia: ")
             self.label_2.config(text="Miejsce wydarzenia: ")
-            self.label_3.config(text="--")
-            self.label_4.config(text="--")
+            self.label_3.config(text="")
+            self.label_4.config(text="")
         elif mode == "Artysta":
             self.entry_1.config(state='normal')
             self.entry_2.config(state='normal')
@@ -148,17 +148,17 @@ class MapbookView:
         }
 
     def clear_form(self):
-        self.entry_name.delete(0, END)
-        self.entry_loc.delete(0, END)
-        self.entry_posts.delete(0, END)
-        self.entry_img.delete(0, END)
+        self.entry_1.delete(0, END)
+        self.entry_2.delete(0, END)
+        self.entry_3.delete(0, END)
+        self.entry_4.delete(0, END)
 
     def fill_form(self, user):
         self.clear_form()
-        self.entry_name.insert(0, user.name)
-        self.entry_loc.insert(0, user.location)
-        self.entry_posts.insert(0, str(user.posts))
-        self.entry_img.insert(0, user.img_url)
+        self.entry_1.insert(0, user.name)
+        self.entry_2.insert(0, user.location)
+        self.entry_3.insert(0, str(user.posts))
+        self.entry_4.insert(0, user.img_url)
 
     def refresh_list(self, users):
         self.listbox.delete(0, END)

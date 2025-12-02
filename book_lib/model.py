@@ -35,7 +35,7 @@ class Organizer(User):
 class MapbookModel:
     def __init__(self):
         self.connection = psycopg2.connect(
-            user="postgres", host="localhost", database="postgres", password='postgres', port=5432
+            user="postgres", host="localhost", database="cultural_events", password='postgres', port=5432
         )
         self.users = []
 

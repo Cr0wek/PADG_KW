@@ -1,5 +1,5 @@
 from tkinter import messagebox
-from book_lib.model import User
+from book_lib.model import Artist, Event, Employee
 
 class MapbookController:
     def __init__(self, model, view):
@@ -12,7 +12,7 @@ class MapbookController:
     def load_data(self):
         self.events = self.model.fetch_events()
         self.artists = self.model.fetch_artists()
-        self.emplotees = self.model.fetch_emplotees()
+        self.emplotees = self.model.fetch_employees()
         
         self.view.listbox_event.delete(0, 'end')
         for event in self.events:
@@ -22,7 +22,7 @@ class MapbookController:
         self.update_people_lists() #Updating combobox
         
     def update_people_lists(self):
-        self.view.listbox_artist.delete(0, 'end')
+        self.view.listbox.delete(0, 'end')
         mode=self.view.mode.get()
         if mode=="Artysta":
             curr_list=self.artists
@@ -39,21 +39,33 @@ class MapbookController:
         self.view.map_widget.delete_all_marker()
         self.load_data()
 
-    def add_user(self):
+    def add_entry(self):
         data = self.view.get_form_data()
-        if not data['name'] or not data['location']:
-            return
+        mode = data['mode']
         
         try:
-            new_user = User(data['name'], data['location'], int(data['posts']), data['img_url'])
-            self.model.add_user(new_user)
-            self.view.refresh_list(self.model.users)
-            self.view.clear_form()
-            # Focus map on new user
-            self.view.map_widget.set_position(new_user.coords[0], new_user.coords[1])
-        except Exception as e:
-            print(f"Error adding user: {e}")
+            if mode == "Event":
+                # f1=Name, f2=Location
+                obj = Event(data['f1'], data['f2'])
+                self.model.add_event(obj)
+            
+            elif mode == "Artist":
+                # f1=Name, f2=Loc, f3=Nick, f4=EventID
+                obj = Artist(data['f1'], data['f3'], data['f2'], int(data['f4']))
+                self.model.add_artist(obj)
+                
+            elif mode == "Employee":
+                # f1=Name, f2=Loc, f3=Role, f4=EventID
+                obj = Employee(data['f1'], data['f3'], data['f2'], int(data['f4']))
+                self.model.add_employee(obj)
 
+            self.view.map_widget.delete_all_marker()
+            self.refresh_all()
+            
+        except Exception as e:
+            print(f"Nie udało się dodać: {e}")
+            messagebox.showerror("Błąd", f"Nie udało się dodać obiektu: {e}")
+            
     def delete_user(self):
         idx = self.view.get_selected_index()
         if idx is None: return

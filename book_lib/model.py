@@ -60,8 +60,7 @@ class MapbookModel:
     
     def add_event(self, event):
         cur = self.connection.cursor()
-        cur.execute("INSERT INTO events (name, location, geometry) VALUES (%s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326))", 
-                    (event.name, event.location, event.coords[1], event.coords[0]))
+        cur.execute(f"INSERT INTO events (name, location, geometry) VALUES ('{event.name}', '{event.location}', ST_SetSRID(ST_MakePoint({event.coords[1]}, {event.coords[0]}), 4326))")
         self.connection.commit()
 
     def add_artist(self, artist):

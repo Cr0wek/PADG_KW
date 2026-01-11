@@ -8,12 +8,13 @@ class MapbookView:
         self.root.title("Mapbook MVC")
         self.root.geometry("1200x870")
         self.markers = {}
-
+    
         self._setup_frames()
         self._setup_lists()
         self._setup_form()
         self._setup_details()
         self._setup_map()
+        self.form_update_fields()
 
     def _setup_frames(self):
         self.frame_list = Frame(self.root)
@@ -29,13 +30,13 @@ class MapbookView:
         self.frame_map.grid(row=2, column=0, columnspan=2)
 
     def _setup_lists(self):
-        # Events list
+        # Events 
         self.frame_list_events.grid(row=0, column=0)
         Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0)
         self.listbox_event = Listbox(self.frame_list_events, width=40, height=10)
         self.listbox_event.grid(row=1, column=0)
         
-        # People list
+        # People 
         self.frame_list_people.grid(row=0, column=1)
         self.combo_people = ttk.Combobox(self.frame_list_people, values=["Artyści", "Organizatorzy"])
         self.combo_people.current(0)
@@ -55,8 +56,8 @@ class MapbookView:
         Label(self.frame_form, text="Formularz:").grid(row=3, column=0, columnspan=2)
         self.mode = StringVar(value="Wydarzenie")
         self.rb_event = Radiobutton(self.frame_form, text="Dodaj wydarzenie", variable=self.mode, value="Wydarzenie", command=self.form_update_fields)
-        self.rb_artist = Radiobutton(self.frame_form, text="Dodaj artystę", variable=self.mode, value="Artysta", command=self.form_update_fields)
-        self.rb_empl = Radiobutton(self.frame_form, text="Dodaj organizatora", variable=self.mode, value="Organizator", command=self.form_update_fields)
+        self.rb_artist = Radiobutton(self.frame_form, text="Dodaj artystę", variable=self.mode, value="Artyści", command=self.form_update_fields)
+        self.rb_empl = Radiobutton(self.frame_form, text="Dodaj organizatora", variable=self.mode, value="Organizatorzy", command=self.form_update_fields)
         self.rb_event.grid(row=0, column=0, sticky=W)
         self.rb_artist.grid(row=1, column=0, sticky=W)
         self.rb_empl.grid(row=2, column=0, sticky=W)
@@ -84,10 +85,6 @@ class MapbookView:
 
     def form_update_fields(self):
         mode = self.mode.get()
-        self.entry_1.delete(0, END)
-        self.entry_2.delete(0, END)
-        self.entry_3.delete(0, END)
-        self.entry_4.delete(0, END)
         
         if mode == "Wydarzenie":
             self.entry_3.config(state='disabled')
@@ -96,7 +93,7 @@ class MapbookView:
             self.label_2.config(text="Miejsce wydarzenia: ")
             self.label_3.config(text="")
             self.label_4.config(text="")
-        elif mode == "Artysta":
+        elif mode == "Artyści":
             self.entry_1.config(state='normal')
             self.entry_2.config(state='normal')
             self.label_1.config(text="Imie i nazwisko: ")
@@ -105,7 +102,7 @@ class MapbookView:
             self.label_3.config(text="Pseudonim: ")
             self.entry_4.config(state='normal')
             self.label_4.config(text="Wydarzenie powiązane: ")
-        elif mode == "Organizator":
+        elif mode == "Organizatorzy":
             self.entry_1.config(state='normal')
             self.entry_2.config(state='normal')
             self.label_1.config(text="Imie i nazwisko: ")
@@ -152,13 +149,21 @@ class MapbookView:
         self.entry_2.delete(0, END)
         self.entry_3.delete(0, END)
         self.entry_4.delete(0, END)
+        self.btn_add_save.config(text="Dodaj obiekt")
 
-    def fill_form(self, user):
+    def fill_form(self, mode, p1, p2, p3="", p4=""):
         self.clear_form()
-        self.entry_1.insert(0, user.name)
-        self.entry_2.insert(0, user.location)
-        self.entry_3.insert(0, str(user.posts))
-        self.entry_4.insert(0, user.img_url)
+        self.entry_1.insert(0, p1)
+        self.entry_2.insert(0, p2)
+        self.entry_3.config(state='normal')
+        self.entry_3.insert(0, p3)
+        self.entry_4.config(state='normal')
+        self.entry_4.insert(0, p4)
+        
+        if mode == "Wydarzenie":
+            self.entry_3.config(state='disabled')
+            self.entry_4.config(state='disabled')
+        self.btn_add_save.config(text="Zapisz zmiany")
 
     def refresh_list(self, users):
         self.listbox.delete(0, END)

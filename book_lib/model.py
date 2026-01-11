@@ -1,4 +1,3 @@
-import psycopg2
 
 def get_coords_osm(location):
     import requests
@@ -39,40 +38,66 @@ class Employee:
 
 class MapbookModel:
     def __init__(self):
-        self.connection = psycopg2.connect(
-            user="postgres", host="localhost", database="cultural_events", password='postgres', port=5432
-        )
-    
+        self.events = []
+        self.artists = []
+        self.employees = []
+        
+        self.add_event(Event("Festiwal Kukurydzy", "Kobyłka"))
+        
     def fetch_events(self):
-        cur = self.connection.cursor()
-        cur.execute("SELECT id, name, location, ST_Y(geometry::geometry), ST_X(geometry::geometry) FROM events")
-        return [Event(r[1], r[2], id=r[0], coords=[r[3], r[4]]) for r in cur.fetchall()]
+        return self.events
     
     def fetch_artists(self):
-        cur = self.connection.cursor()
-        cur.execute("SELECT id, full_name, nickname, location, event_id, ST_Y(geometry::geometry), ST_X(geometry::geometry) FROM artists")
-        return [Artist(r[1], r[2], r[3], r[4], id=r[0], coords=[r[5], r[6]]) for r in cur.fetchall()]
+        return self.artists
 
     def fetch_employees(self):
-        cur = self.connection.cursor()
-        cur.execute("SELECT id, full_name, role, location, event_id, ST_Y(geometry::geometry), ST_X(geometry::geometry) FROM employees")
-        return [Employee(r[1], r[2], r[3], r[4], id=r[0], coords=[r[5], r[6]]) for r in cur.fetchall()]
-    
+        return self.employees    
+        
     def add_event(self, event):
-        cur = self.connection.cursor()
-        cur.execute(f"INSERT INTO events (name, location, geometry) VALUES ('{event.name}', '{event.location}', ST_SetSRID(ST_MakePoint({event.coords[1]}, {event.coords[0]}), 4326))")
-        self.connection.commit()
-
+        event.id = len(self.events) + 1
+        self.events.append(event)
     def add_artist(self, artist):
-        cur = self.connection.cursor()
-        cur.execute("INSERT INTO artists (full_name, nickname, location, event_id, geometry) VALUES (%s, %s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326))",
-                    (artist.full_name, artist.nickname, artist.location, artist.event_id, artist.coords[1], artist.coords[0]))
-        self.connection.commit()
+        artist.id = len(self.artists) + 1
+        self.artists.append(artist)
+    def add_employee(self, employee):
+        employee.id = len(self.employees) + 1
+        self.employees.append(employee)
+        
+    def delete_event(self, index):
+        if 0 <= index < len(self.events):
+            del self.events[index]
 
-    def add_employee(self, emp):
-        cur = self.connection.cursor()
-        cur.execute("INSERT INTO employees (full_name, role, location, event_id, geometry) VALUES (%s, %s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326))",
-                    (emp.full_name, emp.role, emp.location, emp.event_id, emp.coords[1], emp.coords[0]))
-        self.connection.commit()
+    def delete_artist(self, index):
+        if 0 <= index < len(self.artists):
+            del self.artists[index]
 
+    def delete_employee(self, index):
+        if 0 <= index < len(self.employees):
+            del self.employees[index]
+
+    def update_event(self, index, new_data):
+        if 0 <= index < len(self.events):
+            evt = self.events[index]
+            evt.name = new_data['p1']
+            evt.location = new_data['p2']
+            evt.coords = get_coords_osm(evt.location)
+
+    def update_artist(self, index, new_data):
+        if 0 <= index < len(self.artists):
+            art = self.artists[index]
+            art.full_name = new_data['p1']
+            art.location = new_data['p2']
+            art.nickname = new_data['p3']
+            art.event_id = int(new_data['p4']) if new_data['p4'].isdigit() else 0
+            art.coords = get_coords_osm(art.location)
+
+    def update_employee(self, index, new_data):
+        if 0 <= index < len(self.employees):
+            emp = self.employees[index]
+            emp.full_name = new_data['p1']
+            emp.location = new_data['p2']
+            emp.role = new_data['p3']
+            emp.event_id = int(new_data['p4']) if new_data['p4'].isdigit() else 0
+            emp.coords = get_coords_osm(emp.location)
+    
     

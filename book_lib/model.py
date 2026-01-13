@@ -43,6 +43,10 @@ class MapbookModel:
         self.employees = []
         
         self.add_event(Event("Festiwal Kukurydzy", "Kobyłka"))
+        self.add_artist(Artist('Piotrek','Piter','Ząbki','1'))
+        self.add_artist(Artist('Tomasz','Tomi','Radzymin','2'))
+        self.add_employee(Employee('Adrian Nowak', 'Bramkarz', 'Warszawa', 1))
+        self.add_employee(Employee('Beata Nowicka', 'Piwo', 'Łomianki', 1))
         
     def fetch_events(self):
         return self.events

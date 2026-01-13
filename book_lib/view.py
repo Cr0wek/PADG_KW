@@ -77,8 +77,8 @@ class MapbookView:
         self.entry_2.grid(row=5, column=1)
         self.entry_3 = Entry(self.frame_form)
         self.entry_3.grid(row=6, column=1)
-        self.entry_4 = Entry(self.frame_form)
-        self.entry_4.grid(row=7, column=1)
+        self.combo_event = ttk.Combobox(self.frame_form, width=30, state='readonly')
+        self.combo_event.grid(row=7, column=1)
 
         self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt")
         self.btn_add_save.grid(row=8, column=0, columnspan=2)
@@ -87,12 +87,13 @@ class MapbookView:
         mode = self.mode.get()
         
         if mode == "Wydarzenie":
-            self.entry_3.config(state='disabled')
-            self.entry_4.config(state='disabled')
             self.label_1.config(text="Nazwa wydarzenia: ")
             self.label_2.config(text="Miejsce wydarzenia: ")
             self.label_3.config(text="")
             self.label_4.config(text="")
+            self.entry_3.config(state='disabled')
+            self.combo_event.set('')
+            self.combo_event.config(state='disabled')
         elif mode == "Artyści":
             self.entry_1.config(state='normal')
             self.entry_2.config(state='normal')
@@ -100,7 +101,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Pseudonim: ")
-            self.entry_4.config(state='normal')
+            self.combo_event.config(state='normal')
             self.label_4.config(text="Wydarzenie powiązane: ")
         elif mode == "Organizatorzy":
             self.entry_1.config(state='normal')
@@ -109,7 +110,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Rola: ")
-            self.entry_4.config(state='normal')
+            self.combo_event.config(state='normal')
             self.label_4.config(text="Wydarzenie powiązane: ")
 
 
@@ -141,15 +142,17 @@ class MapbookView:
             'p1': self.entry_1.get(),
             'p2': self.entry_2.get(),
             'p3': self.entry_3.get(),
-            'p4': self.entry_4.get()
+            'p4': self.combo_event.get()
         }
 
     def clear_form(self):
         self.entry_1.delete(0, END)
         self.entry_2.delete(0, END)
         self.entry_3.delete(0, END)
-        self.entry_4.delete(0, END)
         self.btn_add_save.config(text="Dodaj obiekt")
+        
+    def update_event_options(self, options):
+        self.combo_event['values']=options
 
     def fill_form(self, mode, p1, p2, p3="", p4=""):
         self.clear_form()
@@ -157,13 +160,13 @@ class MapbookView:
         self.entry_2.insert(0, p2)
         self.entry_3.config(state='normal')
         self.entry_3.insert(0, p3)
-        self.entry_4.config(state='normal')
-        self.entry_4.insert(0, p4)
+        
+        self.combo_event.set(str(p4))
         
         if mode == "Wydarzenie":
             self.entry_3.config(state='disabled')
-            self.entry_4.config(state='disabled')
-        self.btn_add_save.config(text="Zapisz zmiany")
+            self.combo_event.config(state='disabled')
+        self.btn_add_save.config(text="Zapisz zmiany", bg="#69ff69")
 
     def refresh_list(self, users):
         self.listbox.delete(0, END)

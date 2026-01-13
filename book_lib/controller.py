@@ -28,6 +28,9 @@ class MapbookController:
         self.artists = self.model.fetch_artists()
         self.employees = self.model.fetch_employees()
         
+        event_names=[ev.name for ev in self.events]
+        self.view.update_event_options(event_names)
+        
         self.view.listbox_event.delete(0, 'end')
         self.view.map_widget.delete_all_marker()
         for event in self.events:
@@ -43,12 +46,12 @@ class MapbookController:
         if mode=="Artyści":
             curr_list=self.artists
             for artist in curr_list:
-                self.view.listbox.insert('end', artist.full_name)
+                self.view.listbox.insert('end', f"{artist.full_name} -> {artist.event_name}")
                 self.view.map_widget.set_marker(artist.coords[0], artist.coords[1], text=artist.full_name)
         elif mode=="Organizatorzy":
             curr_list=self.employees
             for employee in curr_list:
-                self.view.listbox.insert('end', employee.full_name)
+                self.view.listbox.insert('end', f"{employee.full_name} -> {employee.event_name}")
                 self.view.map_widget.set_marker(employee.coords[0], employee.coords[1], text=employee.full_name)
 
     def combobox_changed(self, event):
@@ -93,11 +96,11 @@ class MapbookController:
             mode=self.view.combo_people.get()
             if mode == "Artyści" and idx < len(self.artists):
                 obj=self.artists[idx]
-                self.view.fill_form("Artyści", obj.full_name, obj.location, obj.nickname, obj.event_id)
+                self.view.fill_form("Artyści", obj.full_name, obj.location, obj.nickname, obj.event_name)
                 self.edit_list_type="artist"
             if mode == "Organizatorzy" and idx < len(self.employees):
                 obj=self.employees[idx]
-                self.view.fill_form("Organizatorzy", obj.full_name, obj.location, obj.role, obj.event_id)
+                self.view.fill_form("Organizatorzy", obj.full_name, obj.location, obj.role, obj.event_name)
                 self.edit_list_type="employee"
             self.edit_mode=True
             print("Tryb edycji ON")
@@ -132,9 +135,9 @@ class MapbookController:
             if mode == "Wydarzenie":
                 self.model.add_event(Event(data['p1'], data['p2']))
             elif mode == "Artyści":
-                self.model.add_artist(Artist(data['p1'], data['p3'], data['p2'], int(data['p4'])))
+                self.model.add_artist(Artist(data['p1'], data['p3'], data['p2'], data['p4']))
             elif mode == "Organizatorzy":
-                self.model.add_employee(Employee(data['p1'], data['p3'], data['p2'], int(data['p4'])))
+                self.model.add_employee(Employee(data['p1'], data['p3'], data['p2'], data['p4']))
             
         self.view.clear_form()
         self.load_data()
@@ -155,7 +158,7 @@ class MapbookController:
             obj = self.artists[idx[0]]
         else:
             obj = self.employees[idx[0]]
-            
+        
         # self.view.map_widget.set_position(obj.coords[0], obj.coords[1])
         self.view.lbl_val_name.config(text=obj.full_name)
         self.view.lbl_val_loc.config(text=obj.location)

@@ -12,7 +12,6 @@ class MapbookController:
         self.events = []
         self.artists = []
         self.employees = []
-       
 
         self.view.btn_add_save.config(command=self.save_data)
         self.view.btn_delete.config(command=self.delete_entry)
@@ -29,12 +28,11 @@ class MapbookController:
         self.artists = self.model.fetch_artists()
         self.employees = self.model.fetch_employees()
         
-        
         self.view.listbox_event.delete(0, 'end')
         self.view.map_widget.delete_all_marker()
         for event in self.events:
             self.view.listbox_event.insert('end', event.name)
-            self.view.map_widget.set_marker(event.coords[0], event.coords[1], text=event.name)
+            self.view.map_widget.set_marker(event.coords[0], event.coords[1], text=event.name, marker_color_outside='green', marker_color_circle='darkgreen')
             
         self.update_people_lists()
         
@@ -56,23 +54,6 @@ class MapbookController:
     def combobox_changed(self, event):
         self.view.map_widget.delete_all_marker()
         self.load_data()
-
-    # def add_entry(self):
-    #     data = self.view.get_form_data()
-    #     mode = data['mode']
-        
-    #     if mode == "Wydarzenie":
-    #         self.model.add_event(Event(data['p1'], data['p2']))
-        
-    #     elif mode == "Artyści":
-    #         self.model.add_artist(Artist(data['p1'], data['p3'], data['p2'], int(data['p4'])))
-            
-    #     elif mode == "Organizatorzy":
-    #         self.model.add_employee(Employee(data['p1'], data['p3'], data['p2'], int(data['p4'])))
-
-    #     self.view.clear_form()
-    #     self.view.map_widget.delete_all_marker()
-    #     self.load_data()
             
     def delete_entry(self):
         idx_event = self.view.listbox_event.curselection()
@@ -158,8 +139,6 @@ class MapbookController:
         self.view.clear_form()
         self.load_data()
             
-            
-        
     def on_event_select(self, event):
         idx = self.view.listbox_event.curselection()
         if not idx: return
@@ -177,7 +156,7 @@ class MapbookController:
         else:
             obj = self.employees[idx[0]]
             
-        self.view.map_widget.set_position(obj.coords[0], obj.coords[1])
+        # self.view.map_widget.set_position(obj.coords[0], obj.coords[1])
         self.view.lbl_val_name.config(text=obj.full_name)
         self.view.lbl_val_loc.config(text=obj.location)
         extra = getattr(obj, 'nickname', getattr(obj, 'role', ''))

@@ -6,7 +6,7 @@ class MapbookView:
     def __init__(self, root):
         self.root = root
         self.root.title("Mapbook MVC")
-        self.root.geometry("1200x870")
+        self.root.geometry("1500x870")
         self.markers = {}
     
         self._setup_frames()
@@ -43,6 +43,11 @@ class MapbookView:
         self.combo_people.grid(row=0, column=1)
         self.listbox = Listbox(self.frame_list_people, width=40, height=10)
         self.listbox.grid(row=1, column=1)
+        
+        Label(self.frame_list_people, text="Filtruj wg wydarzenia:").grid(row=0, column=3)
+        self.combo_filter = ttk.Combobox(self.frame_list_people, state='readonly')
+        self.combo_filter.set("Wszystkie")
+        self.combo_filter.grid(row=1, column=3)
         
 
         self.btn_details = Button(self.frame_list, text="Pokaż szczegóły")
@@ -130,7 +135,7 @@ class MapbookView:
         self.lbl_val_posts.grid(row=1, column=5)
 
     def _setup_map(self):
-        self.map_widget = tkintermapview.TkinterMapView(self.frame_map, width=800, height=600, corner_radius=10)
+        self.map_widget = tkintermapview.TkinterMapView(self.frame_map, width=1500, height=600, corner_radius=10)
         self.map_widget.set_position(52.22977, 21.01178)
         self.map_widget.set_zoom(10)
         self.map_widget.grid(row=0, column=0)
@@ -153,6 +158,8 @@ class MapbookView:
         
     def update_event_options(self, options):
         self.combo_event['values']=options
+        filter_options=["Wszystkie"]+options
+        self.combo_filter['values']=filter_options
 
     def fill_form(self, mode, p1, p2, p3="", p4=""):
         self.clear_form()

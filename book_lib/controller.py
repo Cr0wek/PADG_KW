@@ -19,6 +19,7 @@ class MapbookController:
         
         
         self.view.combo_people.bind("<<ComboboxSelected>>", self.combobox_changed)
+        self.view.combo_filter.bind("<<ComboboxSelected>>", self.filter_changed)
         self.view.listbox_event.bind("<<ListboxSelect>>", self.on_event_select)
         self.view.listbox.bind("<<ListboxSelect>>", self.on_person_select)
         self.load_data()
@@ -35,24 +36,37 @@ class MapbookController:
         self.view.map_widget.delete_all_marker()
         for event in self.events:
             self.view.listbox_event.insert('end', event.name)
-            self.view.map_widget.set_marker(event.coords[0], event.coords[1], text=event.name, marker_color_outside='green', marker_color_circle='darkgreen')
+            self.addmarker(event.coords, event.name, 'green')
             
         self.update_people_lists()
         
     def update_people_lists(self):
         self.view.listbox.delete(0, 'end')
         mode=self.view.combo_people.get()
+        filter_value=self.view.combo_filter.get()
         print(mode)
         if mode=="Artyści":
             curr_list=self.artists
-            for artist in curr_list:
-                self.view.listbox.insert('end', f"{artist.full_name} -> {artist.event_name}")
-                self.view.map_widget.set_marker(artist.coords[0], artist.coords[1], text=artist.full_name)
+            marker_color='crimson'
         elif mode=="Organizatorzy":
             curr_list=self.employees
-            for employee in curr_list:
-                self.view.listbox.insert('end', f"{employee.full_name} -> {employee.event_name}")
-                self.view.map_widget.set_marker(employee.coords[0], employee.coords[1], text=employee.full_name)
+            marker_color='royalblue'
+                
+        for p in curr_list:
+            if filter_value == "Wszystkie" or p.event_name == filter_value:
+                self.view.listbox.insert('end', f"{p.full_name} -> {p.event_name}")
+                self.addmarker(p.coords, p.full_name, marker_color)
+
+    def addmarker(self, coords, text, color):
+        self.view.map_widget.set_marker(coords[0], coords[1], text=text, marker_color_outside=color, marker_color_circle=color)
+
+
+    def filter_changed(self, event):
+        self.view.map_widget.delete_all_marker()
+        for e in self.events:
+            self.addmarker(e.coords, e.name, 'green')
+        self.update_people_lists()
+
 
     def combobox_changed(self, event):
         self.view.map_widget.delete_all_marker()

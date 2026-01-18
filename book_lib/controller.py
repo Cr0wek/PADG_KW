@@ -36,10 +36,12 @@ class MapbookController:
         self.view.listbox_event.delete(0, 'end')
         self.view.map_widget.delete_all_marker()
         show_events=self.view.var_show_events.get()
+        filter_value=self.view.combo_filter.get()
         for event in self.events:
             self.view.listbox_event.insert('end', event.name)
             if show_events == True:
-                self.addmarker(event.coords, event.name, 'green')
+                if filter_value=="Wszystkie" or filter_value==event.name:
+                    self.addmarker(event.coords, event.name, 'green')
             
         self.update_people_lists()
         
@@ -47,7 +49,7 @@ class MapbookController:
         self.view.listbox.delete(0, 'end')
         mode=self.view.combo_people.get()
         filter_value=self.view.combo_filter.get()
-        print(mode)
+        # print(mode)
         if mode=="Artyści":
             curr_list=self.artists
             marker_color='red'
@@ -64,10 +66,7 @@ class MapbookController:
         self.view.map_widget.set_marker(coords[0], coords[1], text=text, marker_color_outside=color, marker_color_circle=f"dark{color}")
 
     def filter_changed(self, event):
-        self.view.map_widget.delete_all_marker()
-        for e in self.events:
-            self.addmarker(e.coords, e.name, 'green')
-        self.update_people_lists()
+        self.load_data()
         
     def combobox_changed(self, event):
         self.view.map_widget.delete_all_marker()
@@ -80,6 +79,7 @@ class MapbookController:
         if idx_people:
             if filter_value != "Wszystkie":
                 messagebox.showwarning("Ostrzeżenie", "W celu usunięcia osoby przełącz filtr na 'Wszystkie'")
+                return
             idx=idx_people[0]
             mode=self.view.combo_people.get()
             if mode == "Artyści":
@@ -133,6 +133,7 @@ class MapbookController:
                 self.edit_mode=True
                 self.edit_idx=idx
         else:
+            messagebox.showwarning("Ostrzeżenie", "Zaznacz użytkownika/wydarzenie")
             print("Nie zaznaczono elementu do edycji")
 
     def save_data(self):

@@ -45,7 +45,7 @@ class MapbookModel:
         self.add_event(Event("JUWE FEST", "Stadion Narodowy, Warszawa"))
         self.add_event(Event("Szkolenie wojskowe", "WAT, Warszawa"))
         self.add_artist(Artist('Piotrek','Piter','Ząbki','JUWE FEST'))
-        self.add_artist(Artist('Tomasz','Tomi','Radzymin','Szkolenie wojskowe '))
+        self.add_artist(Artist('Tomasz','Tomi','Radzymin','Szkolenie wojskowe'))
         self.add_employee(Employee('Adrian Nowak', 'Bramkarz', 'Warszawa', "JUWE FEST"))
         self.add_employee(Employee('Beata Nowicka', 'Piwo', 'Łomianki', "Szkolenie wojskowe"))
         

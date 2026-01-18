@@ -100,7 +100,7 @@ class MapbookView:
 
     def form_update_fields(self):
         mode = self.mode.get()
-        
+        self.clear_form()
         if mode == "Wydarzenie":
             self.label_1.config(text="Nazwa wydarzenia: ")
             self.label_2.config(text="Miejsce wydarzenia: ")

@@ -50,10 +50,10 @@ class MapbookController:
         print(mode)
         if mode=="Artyści":
             curr_list=self.artists
-            marker_color='crimson'
+            marker_color='red'
         elif mode=="Organizatorzy":
             curr_list=self.employees
-            marker_color='royalblue'
+            marker_color='blue'
                 
         for p in curr_list:
             if filter_value == "Wszystkie" or p.event_name == filter_value:
@@ -61,16 +61,14 @@ class MapbookController:
                 self.addmarker(p.coords, p.full_name, marker_color)
 
     def addmarker(self, coords, text, color):
-        self.view.map_widget.set_marker(coords[0], coords[1], text=text, marker_color_outside=color, marker_color_circle=color)
-
+        self.view.map_widget.set_marker(coords[0], coords[1], text=text, marker_color_outside=color, marker_color_circle=f"dark{color}")
 
     def filter_changed(self, event):
         self.view.map_widget.delete_all_marker()
         for e in self.events:
             self.addmarker(e.coords, e.name, 'green')
         self.update_people_lists()
-
-
+        
     def combobox_changed(self, event):
         self.view.map_widget.delete_all_marker()
         self.load_data()
@@ -98,7 +96,6 @@ class MapbookController:
             print("Nic nie zaznaczono")
             messagebox.showwarning("Ostrzeżenie", "Zaznacz użytkownika/wydarzenie")
             
-        
         self.view.clear_form()
         self.load_data()
 
@@ -178,11 +175,11 @@ class MapbookController:
         mode = self.view.combo_people.get()
         if mode == "Artyści":
             obj = self.artists[idx[0]]
+            self.view.lbl_val_3.config(text=f"Pseudonim: {obj.nickname}")
         else:
             obj = self.employees[idx[0]]
+            # extra = getattr(obj, 'nickname', getattr(obj, 'role', ''))
+            self.view.lbl_val_3.config(text=f"Rola: {obj.role}")
         
-        # self.view.map_widget.set_position(obj.coords[0], obj.coords[1])
-        self.view.lbl_val_name.config(text=obj.full_name)
-        self.view.lbl_val_loc.config(text=obj.location)
-        extra = getattr(obj, 'nickname', getattr(obj, 'role', ''))
-        self.view.lbl_val_posts.config(text=extra)
+        self.view.lbl_val_1.config(text=f"Imię i nazwisko: {obj.full_name}")
+        self.view.lbl_val_2.config(text=f"Lokalizacja: {obj.location}")

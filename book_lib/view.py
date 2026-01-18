@@ -35,7 +35,7 @@ class MapbookView:
         self.frame_map.grid(row=3, column=0, columnspan=3, sticky="nsew",padx=5, pady=10)
         
         self.frame_control=Frame(self.root)
-        self.frame_control.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.frame_control.grid(row=0, column=1, sticky="nsew", padx=5, pady=20)
 
         self.frame_list_events = Frame(self.frame_list)
         self.frame_list_people = Frame(self.frame_list)
@@ -45,24 +45,27 @@ class MapbookView:
         self.frame_list.columnconfigure(1, weight=1)
         self.frame_list.rowconfigure(1, weight=1)
         # Events 
-        self.frame_list_events.grid(row=0, column=0)
-        Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=20)
+        self.frame_list_events.grid(row=0, column=0, sticky='n')
+        Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=13)
         self.listbox_event = Listbox(self.frame_list_events, height=10, width=40)
-        self.listbox_event.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.listbox_event.grid(row=1, column=0, sticky="nsew", padx=5)
         
         self.var_show_events=BooleanVar(value=True)
         self.checkbutton_show_events=Checkbutton(self.frame_list_events,text="Widoczność wydarzeń na mapie",variable=self.var_show_events,onvalue=True,offvalue=False) 
         self.checkbutton_show_events.grid(row=2, column=0, sticky="w", padx=5)     
         
+        self.var_show_people=BooleanVar(value=True)
+        self.checkbutton_show_people=Checkbutton(self.frame_list_people,text="Widoczność osób na mapie",variable=self.var_show_people,onvalue=True,offvalue=False) 
+        self.checkbutton_show_people.grid(row=3, column=0, sticky="w", padx=5)     
         # People 
-        self.frame_list_people.grid(row=0, column=1, sticky="ew")
+        self.frame_list_people.grid(row=0, column=1, sticky="n")
         Label(self.frame_list_people, text="Osoby:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w")
         self.combo_people = ttk.Combobox(self.frame_list_people, values=["Artyści", "Organizatorzy"])
         self.combo_people.current(0)
-        self.combo_people.grid(row=1, column=1, padx=5)
+        self.combo_people.grid(row=1, column=0, padx=5)
         
         self.listbox = Listbox(self.frame_list_people, height=10, width=40)
-        self.listbox.grid(row=2, column=1, sticky="nsew", padx=5, pady=5)      
+        self.listbox.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)      
 
     def _setup_form(self):     
         frame_radio=Frame(self.frame_form)
@@ -100,7 +103,11 @@ class MapbookView:
 
     def form_update_fields(self):
         mode = self.mode.get()
-        
+        self.edit_mode = False
+        self.edit_idx = None
+        self.edit_list_type = None
+        print("wyzerowano edit mode")
+        self.clear_form()
         if mode == "Wydarzenie":
             self.label_1.config(text="Nazwa wydarzenia: ")
             self.label_2.config(text="Miejsce wydarzenia: ")
@@ -116,7 +123,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Pseudonim: ")
-            self.combo_event.config(state='normal')
+            self.combo_event.config(state='readonly')
             self.label_4.config(text="Wydarzenie powiązane: ")
         elif mode == "Organizatorzy":
             self.entry_1.config(state='normal')
@@ -125,7 +132,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Rola: ")
-            self.combo_event.config(state='normal')
+            self.combo_event.config(state='readonly')
             self.label_4.config(text="Wydarzenie powiązane: ")
 
 

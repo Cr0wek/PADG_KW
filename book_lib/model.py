@@ -4,13 +4,14 @@ def get_coords_osm(location):
     try:
         url:str=f'https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1'
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        data=requests.get(url, headers=headers).json()
+        data=requests.get(url, headers=headers, timeout=3).json()
         latitude=float(data[0]['lat'])
         longitude=float(data[0]['lon'])
         return [latitude, longitude]
     except:
+        print("Nie udało sie pobrać współrzędnych")
         return [52.2297, 21.0122]
 
 class Event:
@@ -42,12 +43,12 @@ class MapbookModel:
         self.artists = []
         self.employees = []
         
-        self.add_event(Event("JUWE FEST", "Stadion Narodowy, Warszawa"))
-        self.add_event(Event("Szkolenie wojskowe", "WAT, Warszawa"))
-        self.add_artist(Artist('Piotrek','Piter','Ząbki','JUWE FEST'))
-        self.add_artist(Artist('Tomasz','Tomi','Radzymin','Szkolenie wojskowe '))
-        self.add_employee(Employee('Adrian Nowak', 'Bramkarz', 'Warszawa', "JUWE FEST"))
-        self.add_employee(Employee('Beata Nowicka', 'Piwo', 'Łomianki', "Szkolenie wojskowe"))
+        self.add_event(Event("Festiwal JUWE FEST", "Stadion Narodowy, Warszawa"))
+        self.add_event(Event("Koncert Sanah", "Torwar, Warszawa"))
+        self.add_artist(Artist('Piotr Krawczyk','PiKra','Piłsudskiego, Ząbki','Festiwal JUWE FEST'))
+        self.add_artist(Artist('Tomasz Pajączek','Tomi','Jana Pawła, Radzymin','Koncert Sanah'))
+        self.add_employee(Employee('Adrian Nowak', 'Bramkarz', 'Nowy Świat, Warszawa', "Festiwal JUWE FEST"))
+        self.add_employee(Employee('Beata Nowicka', 'Piwo', 'Łomianki', "Koncert Sanah"))
         
     def fetch_events(self):
         return self.events
@@ -78,11 +79,21 @@ class MapbookModel:
             del self.employees[index]
 
     def update_event(self, index, new_data):
-        if 0 <= index < len(self.events):
-            evt = self.events[index]
-            evt.name = new_data['p1']
-            evt.location = new_data['p2']
-            evt.coords = get_coords_osm(evt.location)
+            
+        if 0<=index:
+            event=self.events[index]
+            oldname=event.name
+            newname=new_data['p1']
+            event.name=newname
+            event.location=new_data['p2']
+            event.coords=get_coords_osm(event.location)
+            if oldname!=newname:
+                for a in self.artists:
+                    if a.event_name==oldname:
+                        a.event_name=newname
+                for e in self.employees:
+                    if e.event_name==oldname:
+                        e.event_name=newname
 
     def update_artist(self, index, new_data):
         if 0 <= index < len(self.artists):

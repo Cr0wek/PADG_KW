@@ -14,16 +14,27 @@ class MapbookController:
         self.artists = []
         self.employees = []
 
+        self.view.mode.trace_add("write", self.on_mode_change)
+        
         self.view.btn_add_save.config(command=self.save_data)
         self.view.btn_delete.config(command=self.delete_entry)
         self.view.btn_edit.config(command=self.prepare_edit)
         self.view.checkbutton_show_events.config(command=self.load_data)
+        self.view.checkbutton_show_people.config(command=self.load_data)
         
         self.view.combo_people.bind("<<ComboboxSelected>>", self.combobox_changed)
         self.view.combo_filter.bind("<<ComboboxSelected>>", self.filter_changed)
         self.view.listbox_event.bind("<<ListboxSelect>>", self.on_event_select)
         self.view.listbox.bind("<<ListboxSelect>>", self.on_person_select)
         self.load_data()
+
+    def on_mode_change(self, *args):
+        self.edit_mode = False
+        self.edit_idx = None
+        self.edit_list_type = None
+        self.view.clear_form()
+        self.view.form_update_fields()
+        print("Edycja anulowana")
 
     def load_data(self):
         self.events = self.model.fetch_events()
@@ -46,9 +57,13 @@ class MapbookController:
         self.update_people_lists()
         
     def update_people_lists(self):
+        self.edit_mode = False
+        self.edit_idx = None
+        self.edit_list_type = None
         self.view.listbox.delete(0, 'end')
         mode=self.view.combo_people.get()
         filter_value=self.view.combo_filter.get()
+        show_people=self.view.var_show_people.get()
         # print(mode)
         if mode=="Artyści":
             curr_list=self.artists
@@ -58,9 +73,10 @@ class MapbookController:
             marker_color='blue'
                 
         for p in curr_list:
-            if filter_value == "Wszystkie" or p.event_name == filter_value:
-                self.view.listbox.insert('end', f"{p.full_name} -> {p.event_name}")
-                self.addmarker(p.coords, p.full_name, marker_color)
+            if show_people==True:
+                if filter_value == "Wszystkie" or p.event_name == filter_value:
+                    self.view.listbox.insert('end', f"{p.full_name}, {p.event_name}")
+                    self.addmarker(p.coords, p.full_name, marker_color)
 
     def addmarker(self, coords, text, color):
         self.view.map_widget.set_marker(coords[0], coords[1], text=text, marker_color_outside=color, marker_color_circle=f"dark{color}")

@@ -2,11 +2,12 @@ from tkinter import *
 from tkinter import ttk
 import tkintermapview
 
+
 class MapbookView:
     def __init__(self, root):
         self.root = root
         self.root.title("Mapbook MVC")
-        self.root.geometry("1200x870")
+        self.root.geometry("1500x870")
         self.markers = {}
     
         self._setup_frames()
@@ -44,9 +45,21 @@ class MapbookView:
         self.listbox = Listbox(self.frame_list_people, width=40, height=10)
         self.listbox.grid(row=1, column=1)
         
+        Label(self.frame_list_people, text="Filtruj wg wydarzenia:").grid(row=0, column=3)
+        self.combo_filter = ttk.Combobox(self.frame_list_people, state='readonly')
+        self.combo_filter.set("Wszystkie")
+        self.combo_filter.grid(row=1, column=3)
+        
+        self.var_show_events=BooleanVar(value=True)
+        self.checkbutton_show_events=Checkbutton(
+            self.frame_list_people,
+            text="Widoczność wydarzeń na mapie",
+            variable=self.var_show_events,
+            onvalue=True,
+            offvalue=False
+        ) 
+        self.checkbutton_show_events.grid(row=2, column=3)       
 
-        self.btn_details = Button(self.frame_list, text="Pokaż szczegóły")
-        self.btn_details.grid(row=2, column=0)
         self.btn_delete = Button(self.frame_list, text="Usuń obiekt")
         self.btn_delete.grid(row=2, column=1)
         self.btn_edit = Button(self.frame_list, text="Edytuj obiekt")
@@ -77,22 +90,23 @@ class MapbookView:
         self.entry_2.grid(row=5, column=1)
         self.entry_3 = Entry(self.frame_form)
         self.entry_3.grid(row=6, column=1)
-        self.entry_4 = Entry(self.frame_form)
-        self.entry_4.grid(row=7, column=1)
+        self.combo_event = ttk.Combobox(self.frame_form, width=30, state='readonly')
+        self.combo_event.grid(row=7, column=1)
 
-        self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt")
+        self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt", bg="#ffffff")
         self.btn_add_save.grid(row=8, column=0, columnspan=2)
 
     def form_update_fields(self):
         mode = self.mode.get()
         
         if mode == "Wydarzenie":
-            self.entry_3.config(state='disabled')
-            self.entry_4.config(state='disabled')
             self.label_1.config(text="Nazwa wydarzenia: ")
             self.label_2.config(text="Miejsce wydarzenia: ")
             self.label_3.config(text="")
             self.label_4.config(text="")
+            self.entry_3.config(state='disabled')
+            self.combo_event.set('')
+            self.combo_event.config(state='disabled')
         elif mode == "Artyści":
             self.entry_1.config(state='normal')
             self.entry_2.config(state='normal')
@@ -100,7 +114,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Pseudonim: ")
-            self.entry_4.config(state='normal')
+            self.combo_event.config(state='normal')
             self.label_4.config(text="Wydarzenie powiązane: ")
         elif mode == "Organizatorzy":
             self.entry_1.config(state='normal')
@@ -109,7 +123,7 @@ class MapbookView:
             self.label_2.config(text="Lokalizacja: ")
             self.entry_3.config(state='normal')
             self.label_3.config(text="Rola: ")
-            self.entry_4.config(state='normal')
+            self.combo_event.config(state='normal')
             self.label_4.config(text="Wydarzenie powiązane: ")
 
 
@@ -129,7 +143,7 @@ class MapbookView:
         self.lbl_val_posts.grid(row=1, column=5)
 
     def _setup_map(self):
-        self.map_widget = tkintermapview.TkinterMapView(self.frame_map, width=800, height=600, corner_radius=10)
+        self.map_widget = tkintermapview.TkinterMapView(self.frame_map, width=1500, height=600, corner_radius=10)
         self.map_widget.set_position(52.22977, 21.01178)
         self.map_widget.set_zoom(10)
         self.map_widget.grid(row=0, column=0)
@@ -141,29 +155,35 @@ class MapbookView:
             'p1': self.entry_1.get(),
             'p2': self.entry_2.get(),
             'p3': self.entry_3.get(),
-            'p4': self.entry_4.get()
+            'p4': self.combo_event.get()
         }
 
     def clear_form(self):
         self.entry_1.delete(0, END)
         self.entry_2.delete(0, END)
         self.entry_3.delete(0, END)
-        self.entry_4.delete(0, END)
-        self.btn_add_save.config(text="Dodaj obiekt")
+        self.btn_add_save.config(text="Dodaj obiekt", bg="#ffffff")
+        
+    def update_event_options(self, options):
+        self.combo_event['values']=options
+        filter_options=["Wszystkie"]+options
+        self.combo_filter['values']=filter_options
 
     def fill_form(self, mode, p1, p2, p3="", p4=""):
+        self.mode.set(mode)
+        self.form_update_fields()
         self.clear_form()
         self.entry_1.insert(0, p1)
         self.entry_2.insert(0, p2)
         self.entry_3.config(state='normal')
         self.entry_3.insert(0, p3)
-        self.entry_4.config(state='normal')
-        self.entry_4.insert(0, p4)
+        
+        self.combo_event.set(str(p4))
         
         if mode == "Wydarzenie":
             self.entry_3.config(state='disabled')
-            self.entry_4.config(state='disabled')
-        self.btn_add_save.config(text="Zapisz zmiany")
+            self.combo_event.config(state='disabled')
+        self.btn_add_save.config(text="Zapisz zmiany", bg="#69ff69")
 
     def refresh_list(self, users):
         self.listbox.delete(0, END)

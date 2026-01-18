@@ -1,4 +1,5 @@
 from book_lib.model import Artist, Event, Employee
+from tkinter import messagebox
 
 class MapbookController:
     def __init__(self, model, view):
@@ -16,7 +17,7 @@ class MapbookController:
         self.view.btn_add_save.config(command=self.save_data)
         self.view.btn_delete.config(command=self.delete_entry)
         self.view.btn_edit.config(command=self.prepare_edit)
-        
+        self.view.checkbutton_show_events.config(command=self.load_data)
         
         self.view.combo_people.bind("<<ComboboxSelected>>", self.combobox_changed)
         self.view.combo_filter.bind("<<ComboboxSelected>>", self.filter_changed)
@@ -34,9 +35,11 @@ class MapbookController:
         
         self.view.listbox_event.delete(0, 'end')
         self.view.map_widget.delete_all_marker()
+        show_events=self.view.var_show_events.get()
         for event in self.events:
             self.view.listbox_event.insert('end', event.name)
-            self.addmarker(event.coords, event.name, 'green')
+            if show_events == True:
+                self.addmarker(event.coords, event.name, 'green')
             
         self.update_people_lists()
         
@@ -75,8 +78,10 @@ class MapbookController:
     def delete_entry(self):
         idx_event = self.view.listbox_event.curselection()
         idx_people = self.view.listbox.curselection()
-        
+        filter_value=self.view.combo_filter.get()
         if idx_people:
+            if filter_value != "Wszystkie":
+                messagebox.showwarning("Ostrzeżenie", "W celu usunięcia osoby przełącz filtr na 'Wszystkie'")
             idx=idx_people[0]
             mode=self.view.combo_people.get()
             if mode == "Artyści":
@@ -88,8 +93,11 @@ class MapbookController:
             idx=idx_event[0]
             self.model.delete_event(idx)
             print("Usunięto wydarzenie")
+            
         else:
             print("Nic nie zaznaczono")
+            messagebox.showwarning("Ostrzeżenie", "Zaznacz użytkownika/wydarzenie")
+            
         
         self.view.clear_form()
         self.load_data()

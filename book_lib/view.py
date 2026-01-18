@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import tkintermapview
 
+
 class MapbookView:
     def __init__(self, root):
         self.root = root
@@ -49,9 +50,16 @@ class MapbookView:
         self.combo_filter.set("Wszystkie")
         self.combo_filter.grid(row=1, column=3)
         
+        self.var_show_events=BooleanVar(value=True)
+        self.checkbutton_show_events=Checkbutton(
+            self.frame_list_people,
+            text="Widoczność wydarzeń na mapie",
+            variable=self.var_show_events,
+            onvalue=True,
+            offvalue=False
+        ) 
+        self.checkbutton_show_events.grid(row=2, column=3)       
 
-        self.btn_details = Button(self.frame_list, text="Pokaż szczegóły")
-        self.btn_details.grid(row=2, column=0)
         self.btn_delete = Button(self.frame_list, text="Usuń obiekt")
         self.btn_delete.grid(row=2, column=1)
         self.btn_edit = Button(self.frame_list, text="Edytuj obiekt")
@@ -85,7 +93,7 @@ class MapbookView:
         self.combo_event = ttk.Combobox(self.frame_form, width=30, state='readonly')
         self.combo_event.grid(row=7, column=1)
 
-        self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt")
+        self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt", bg="#ffffff")
         self.btn_add_save.grid(row=8, column=0, columnspan=2)
 
     def form_update_fields(self):
@@ -154,7 +162,7 @@ class MapbookView:
         self.entry_1.delete(0, END)
         self.entry_2.delete(0, END)
         self.entry_3.delete(0, END)
-        self.btn_add_save.config(text="Dodaj obiekt")
+        self.btn_add_save.config(text="Dodaj obiekt", bg="#ffffff")
         
     def update_event_options(self, options):
         self.combo_event['values']=options
@@ -162,6 +170,8 @@ class MapbookView:
         self.combo_filter['values']=filter_options
 
     def fill_form(self, mode, p1, p2, p3="", p4=""):
+        self.mode.set(mode)
+        self.form_update_fields()
         self.clear_form()
         self.entry_1.insert(0, p1)
         self.entry_2.insert(0, p2)

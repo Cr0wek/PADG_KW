@@ -7,8 +7,12 @@ class MapbookView:
     def __init__(self, root):
         self.root = root
         self.root.title("Mapbook MVC")
-        self.root.geometry("1500x870")
+        self.root.geometry("1400x870")
         self.markers = {}
+        
+        self.root.columnconfigure(0, weight=3) 
+        self.root.columnconfigure(1, weight=1)
+        self.root.rowconfigure(3, weight=1)
     
         self._setup_frames()
         self._setup_lists()
@@ -19,82 +23,80 @@ class MapbookView:
 
     def _setup_frames(self):
         self.frame_list = Frame(self.root)
+        self.frame_list.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        
+        self.frame_form = Frame(self.root)
+        self.frame_form.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
+        
+        self.frame_details = Frame(self.root)
+        self.frame_details.grid(row=2, column=0, columnspan=1, sticky="nsew", padx=5, pady=5)
+        
+        self.frame_map = Frame(self.root)
+        self.frame_map.grid(row=3, column=0, columnspan=3, sticky="nsew",padx=5, pady=10)
+        
+        self.frame_control=Frame(self.root)
+        self.frame_control.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+
         self.frame_list_events = Frame(self.frame_list)
         self.frame_list_people = Frame(self.frame_list)
-        self.frame_form = Frame(self.root)
-        self.frame_details = Frame(self.root)
-        self.frame_map = Frame(self.root)
-
-        self.frame_list.grid(row=0, column=0)
-        self.frame_form.grid(row=0, column=1)
-        self.frame_details.grid(row=1, column=0, columnspan=2)
-        self.frame_map.grid(row=2, column=0, columnspan=2)
 
     def _setup_lists(self):
+        self.frame_list.columnconfigure(0, weight=1)
+        self.frame_list.columnconfigure(1, weight=1)
+        self.frame_list.rowconfigure(1, weight=1)
         # Events 
         self.frame_list_events.grid(row=0, column=0)
-        Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0)
-        self.listbox_event = Listbox(self.frame_list_events, width=40, height=10)
-        self.listbox_event.grid(row=1, column=0)
-        
-        # People 
-        self.frame_list_people.grid(row=0, column=1)
-        self.combo_people = ttk.Combobox(self.frame_list_people, values=["Artyści", "Organizatorzy"])
-        self.combo_people.current(0)
-        self.combo_people.grid(row=0, column=1)
-        self.listbox = Listbox(self.frame_list_people, width=40, height=10)
-        self.listbox.grid(row=1, column=1)
-        
-        Label(self.frame_list_people, text="Filtruj wg wydarzenia:").grid(row=0, column=3)
-        self.combo_filter = ttk.Combobox(self.frame_list_people, state='readonly')
-        self.combo_filter.set("Wszystkie")
-        self.combo_filter.grid(row=1, column=3)
+        Label(self.frame_list_events, text="Wydarzenia:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w", pady=20)
+        self.listbox_event = Listbox(self.frame_list_events, height=10, width=40)
+        self.listbox_event.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
         
         self.var_show_events=BooleanVar(value=True)
-        self.checkbutton_show_events=Checkbutton(
-            self.frame_list_people,
-            text="Widoczność wydarzeń na mapie",
-            variable=self.var_show_events,
-            onvalue=True,
-            offvalue=False
-        ) 
-        self.checkbutton_show_events.grid(row=2, column=3)       
-
-        self.btn_delete = Button(self.frame_list, text="Usuń obiekt")
-        self.btn_delete.grid(row=2, column=1)
-        self.btn_edit = Button(self.frame_list, text="Edytuj obiekt")
-        self.btn_edit.grid(row=2, column=2)
+        self.checkbutton_show_events=Checkbutton(self.frame_list_events,text="Widoczność wydarzeń na mapie",variable=self.var_show_events,onvalue=True,offvalue=False) 
+        self.checkbutton_show_events.grid(row=2, column=0, sticky="w", padx=5)     
+        
+        # People 
+        self.frame_list_people.grid(row=0, column=1, sticky="ew")
+        Label(self.frame_list_people, text="Osoby:", font=("Arial", 10, "bold")).grid(row=0, column=0, sticky="w")
+        self.combo_people = ttk.Combobox(self.frame_list_people, values=["Artyści", "Organizatorzy"])
+        self.combo_people.current(0)
+        self.combo_people.grid(row=1, column=1, padx=5)
+        
+        self.listbox = Listbox(self.frame_list_people, height=10, width=40)
+        self.listbox.grid(row=2, column=1, sticky="nsew", padx=5, pady=5)      
 
     def _setup_form(self):     
+        frame_radio=Frame(self.frame_form)
+        frame_radio.grid(row=0, column=0, columnspan=2, pady=5, sticky="w")
+        
         Label(self.frame_form, text="Formularz:").grid(row=3, column=0, columnspan=2)
         self.mode = StringVar(value="Wydarzenie")
-        self.rb_event = Radiobutton(self.frame_form, text="Dodaj wydarzenie", variable=self.mode, value="Wydarzenie", command=self.form_update_fields)
-        self.rb_artist = Radiobutton(self.frame_form, text="Dodaj artystę", variable=self.mode, value="Artyści", command=self.form_update_fields)
-        self.rb_empl = Radiobutton(self.frame_form, text="Dodaj organizatora", variable=self.mode, value="Organizatorzy", command=self.form_update_fields)
-        self.rb_event.grid(row=0, column=0, sticky=W)
-        self.rb_artist.grid(row=1, column=0, sticky=W)
-        self.rb_empl.grid(row=2, column=0, sticky=W)
+        self.rb_event = Radiobutton(frame_radio, text="Wydarzenie", variable=self.mode, value="Wydarzenie", command=self.form_update_fields)
+        self.rb_artist = Radiobutton(frame_radio, text="Artysta", variable=self.mode, value="Artyści", command=self.form_update_fields)
+        self.rb_empl = Radiobutton(frame_radio, text="Organizator", variable=self.mode, value="Organizatorzy", command=self.form_update_fields)
+        self.rb_event.grid(row=0, column=0)
+        self.rb_artist.grid(row=0, column=1)
+        self.rb_empl.grid(row=0, column=2)
         
         self.label_1 = Label(self.frame_form, text="Nazwa wydarzenia: ")
-        self.label_1.grid(row=4, column=0, sticky=W)
+        self.label_1.grid(row=1, column=0, sticky=E)
         self.label_2 = Label(self.frame_form, text="Miejsce wydarzenia: ")
-        self.label_2.grid(row=5, column=0, sticky=W)
+        self.label_2.grid(row=2, column=0, sticky=E)
         self.label_3 = Label(self.frame_form, text="")
-        self.label_3.grid(row=6, column=0, sticky=W)
+        self.label_3.grid(row=3, column=0, sticky=E)
         self.label_4 = Label(self.frame_form, text="")
-        self.label_4.grid(row=7, column=0, sticky=W)
+        self.label_4.grid(row=4, column=0, sticky=E)
 
-        self.entry_1 = Entry(self.frame_form)
-        self.entry_1.grid(row=4, column=1)
-        self.entry_2 = Entry(self.frame_form)
-        self.entry_2.grid(row=5, column=1)
-        self.entry_3 = Entry(self.frame_form)
-        self.entry_3.grid(row=6, column=1)
-        self.combo_event = ttk.Combobox(self.frame_form, width=30, state='readonly')
-        self.combo_event.grid(row=7, column=1)
+        self.entry_1 = Entry(self.frame_form, width=30)
+        self.entry_1.grid(row=1, column=1, sticky=W)
+        self.entry_2 = Entry(self.frame_form, width=30)
+        self.entry_2.grid(row=2, column=1, sticky=W)
+        self.entry_3 = Entry(self.frame_form, width=30)
+        self.entry_3.grid(row=3, column=1, sticky=W)
+        self.combo_event = ttk.Combobox(self.frame_form, width=27, state='readonly')
+        self.combo_event.grid(row=4, column=1, sticky=W)
 
         self.btn_add_save = Button(self.frame_form, text="Dodaj obiekt", bg="#ffffff")
-        self.btn_add_save.grid(row=8, column=0, columnspan=2)
+        self.btn_add_save.grid(row=5, column=0, columnspan=2, sticky=EW, pady=15)
 
     def form_update_fields(self):
         mode = self.mode.get()
@@ -128,19 +130,31 @@ class MapbookView:
 
 
     def _setup_details(self):
-        Label(self.frame_details, text="Szczegóły obiektu").grid(row=0, column=0, sticky=W)
+        self.frame_control.columnconfigure(0, weight=1)
+        self.frame_control.columnconfigure(1, weight=1)
         
-        Label(self.frame_details, text="Imie: ").grid(row=1, column=0)
-        self.lbl_val_name = Label(self.frame_details, text="....")
-        self.lbl_val_name.grid(row=1, column=1)
+        self.btn_delete = Button(self.frame_control, text="Usuń zaznaczone", width=20)
+        self.btn_delete.grid(row=2, column=0, sticky="ew", padx=5, pady=10)
+        self.btn_edit = Button(self.frame_control, text="Edytuj zaznaczone", width=20)
+        self.btn_edit.grid(row=3, column=0, sticky="ew", padx=5, pady=10)
+        
+        Label(self.frame_details, text="Szczegóły: ").grid(row=0, column=0, sticky=W)
+        self.lbl_val_1 = Label(self.frame_details, text="---")
+        self.lbl_val_1.grid(row=0, column=1)
+        Label(self.frame_details, text="|").grid(row=0, column=2)
+        
+        self.lbl_val_2 = Label(self.frame_details, text="---")
+        self.lbl_val_2.grid(row=0, column=3)
 
-        Label(self.frame_details, text="Lokalizacja: ").grid(row=1, column=2)
-        self.lbl_val_loc = Label(self.frame_details, text="....")
-        self.lbl_val_loc.grid(row=1, column=3)
-
-        Label(self.frame_details, text="Posty: ").grid(row=1, column=4)
-        self.lbl_val_posts = Label(self.frame_details, text="....")
-        self.lbl_val_posts.grid(row=1, column=5)
+        Label(self.frame_details, text="|").grid(row=0, column=4)
+        self.lbl_val_3 = Label(self.frame_details, text="---")
+        self.lbl_val_3.grid(row=0, column=5)
+        
+        
+        Label(self.frame_control, text="Filtruj wg wydarzenia:").grid(row=0, column=0)
+        self.combo_filter = ttk.Combobox(self.frame_control, state='readonly')
+        self.combo_filter.set("Wszystkie")
+        self.combo_filter.grid(row=1, column=0, padx=5)
 
     def _setup_map(self):
         self.map_widget = tkintermapview.TkinterMapView(self.frame_map, width=1500, height=600, corner_radius=10)
@@ -177,30 +191,12 @@ class MapbookView:
         self.entry_2.insert(0, p2)
         self.entry_3.config(state='normal')
         self.entry_3.insert(0, p3)
-        
         self.combo_event.set(str(p4))
         
         if mode == "Wydarzenie":
             self.entry_3.config(state='disabled')
             self.combo_event.config(state='disabled')
         self.btn_add_save.config(text="Zapisz zmiany", bg="#69ff69")
-
-    def refresh_list(self, users):
-        self.listbox.delete(0, END)
-        self.map_widget.delete_all_marker() # Czyszczenie mapy
-        self.markers.clear()
-        
-        for user in users:
-            self.listbox.insert(END, f'{user.name} from {user.location}')
-            # Re-add marker
-            marker = self.map_widget.set_marker(user.coords[0], user.coords[1], text=user.name)
-            self.markers[user.id] = marker
-
-    def show_details(self, user):
-        self.lbl_val_name.config(text=user.name)
-        self.lbl_val_loc.config(text=user.location)
-        self.lbl_val_posts.config(text=str(user.posts))
-        self.map_widget.set_position(user.coords[0], user.coords[1])
         
     def get_selected_index(self):
         if not self.listbox.curselection():

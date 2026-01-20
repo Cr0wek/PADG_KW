@@ -1,18 +1,31 @@
+def _build_headers(self, provider_key, **kwargs):
+    return {"User-Agent": 'My User Agent 1.0'}
 
-def get_coords_osm(location):
-    import requests
-    try:
-        url:str=f'https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        data=requests.get(url, headers=headers, timeout=3).json()
-        latitude=float(data[0]['lat'])
-        longitude=float(data[0]['lon'])
-        return [latitude, longitude]
-    except:
-        print("Nie udało sie pobrać współrzędnych")
+# def get_coords_osm(location):
+#     import requests
+#     try:
+#         url:str=f'https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1'
+#         headers = {
+#             'User-Agent': 'Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/92.0.4472.124 Safari/538.36'
+#         }
+#         data=requests.get(url, headers=headers).json()
+#         latitude=float(data[0]['lat'])
+#         longitude=float(data[0]['lon'])
+#         return [latitude, longitude]
+#     except:
+#         print("Nie udało sie pobrać współrzędnych")
+#         return [52.2297, 21.0122]
+    
+def get_coords_osm(address: str):
+    from geocoder.osm import OsmQuery
+    import tkintermapview
+    OsmQuery._build_headers = _build_headers
+    data = tkintermapview.convert_address_to_coordinates(address)
+    if data is None:
         return [52.2297, 21.0122]
+    latitude = float(data[0])
+    longitude = float(data[1])
+    return [latitude, longitude]
 
 class Event:
     def __init__(self, name, location, coords=None):

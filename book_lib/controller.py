@@ -52,7 +52,7 @@ class MapbookController:
             self.view.listbox_event.insert('end', event.name)
             if show_events == True:
                 if filter_value=="Wszystkie" or filter_value==event.name:
-                    self.addmarker(event.coords, event.name, 'green')
+                    self.addmarker(event.coords, f"{event.name}, {event.location}", 'green')
             
         self.update_people_lists()
         

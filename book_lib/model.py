@@ -1,94 +1,129 @@
-import psycopg2
+def _build_headers(self, provider_key, **kwargs):
+    return {"User-Agent": 'My User Agent 1.0'}
 
-class User:
-    def __init__(self, name: str, location: str, posts: int, img_url: str, id: int = None):
-        self.id = id
+# def get_coords_osm(location):
+#     import requests
+#     try:
+#         url:str=f'https://nominatim.openstreetmap.org/search?q={location}&format=json&limit=1'
+#         headers = {
+#             'User-Agent': 'Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/538.36 (KHTML, like Gecko) Chrome/92.0.4472.124 Safari/538.36'
+#         }
+#         data=requests.get(url, headers=headers).json()
+#         latitude=float(data[0]['lat'])
+#         longitude=float(data[0]['lon'])
+#         return [latitude, longitude]
+#     except:
+#         print("Nie udało sie pobrać współrzędnych")
+#         return [52.2297, 21.0122]
+    
+def get_coords_osm(address: str):
+    from geocoder.osm import OsmQuery
+    import tkintermapview
+    OsmQuery._build_headers = _build_headers
+    data = tkintermapview.convert_address_to_coordinates(address)
+    if data is None:
+        return [52.2297, 21.0122]
+    latitude = float(data[0])
+    longitude = float(data[1])
+    return [latitude, longitude]
+
+class Event:
+    def __init__(self, name, location, coords=None):
         self.name = name
         self.location = location
-        self.posts = posts
-        self.img_url = img_url
-        self.coords = self.get_coords_osm()
+        self.coords = coords if coords else get_coords_osm(location)
 
-    def get_coords_osm(self):
-        import requests
-        url:str=f'https://nominatim.openstreetmap.org/search?q={self.location}&format=json&limit=1'
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-        data=requests.get(url, headers=headers).json()
-        latitude=float(data[0]['lat'])
-        longitude=float(data[0]['lon'])
-        return [latitude, longitude]
-
-class Artist(User):
-    def __init__(self, name:str, surname:str, location:str, event:str, img_url:str, genre:str, nickname:str, id=None):
-        super().__init__(name, surname, location, event, img_url, id)
-        self.genre = genre
+class Artist:
+    def __init__(self, full_name, nickname, location, event_name, coords=None):
+        self.full_name = full_name
         self.nickname = nickname
-        
-class Organizer(User):
-    def __init__(self, name:str, surname:str, location:str, event:str, img_url:str, company_name:str, id=None):
-        super().__init__(name, surname, location, event, img_url, id)
-        self.company_name = company_name
+        self.location = location
+        self.event_name = event_name
+        self.coords = coords if coords else get_coords_osm(location)
+
+class Employee:
+    def __init__(self, full_name, role, location, event_name, coords=None):
+        self.full_name = full_name
+        self.role = role
+        self.location = location
+        self.event_name = event_name
+        self.coords = coords if coords else get_coords_osm(location)
 
 
 class MapbookModel:
     def __init__(self):
-        self.connection = psycopg2.connect(
-            user="postgres", host="localhost", database="postgres", password='postgres', port=5432
-        )
-        self.users = []
-
-    def fetch_all_users(self):
-        cursor = self.connection.cursor()
-        cursor.execute("""
-            SELECT id, name, location, posts, img_url, 
-            ST_Y(geometry::geometry) as lat, ST_X(geometry::geometry) as lon 
-            FROM public.users
-        """)
-        rows = cursor.fetchall()
-        self.users.clear()
-        for row in rows:
-            # row: 0=id, 1=name, 2=loc, 3=posts, 4=img, 5=lat, 6=lon
-            user = User(row[1], row[2], row[3], row[4], id=row[0])
-            self.users.append(user)
-        return self.users
-
-    def add_user(self, user: User):
-        cursor = self.connection.cursor()
-        query = """
-            INSERT INTO public.users (name, location, posts, img_url, geometry) 
-            VALUES (%s, %s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) 
-            RETURNING id
-        """
-        cursor.execute(query, (user.name, user.location, user.posts, user.img_url, user.coords[1], user.coords[0]))
-        user.id = cursor.fetchone()[0]
-        self.connection.commit()
-        self.users.append(user)
-
-    def delete_user(self, user_index):
-        user = self.users[user_index]
-        cursor = self.connection.cursor()
-        cursor.execute("DELETE FROM public.users WHERE id=%s", (user.id,))
-        self.connection.commit()
-        self.users.pop(user_index)
-
-    def update_user(self, user_index, updated_data: dict):
-        user = self.users[user_index]
-        user.name = updated_data['name']
-        user.location = updated_data['location']
-        user.posts = int(updated_data['posts'])
-        user.img_url = updated_data['img_url']
-        user.coords = user.get_coords_osm()
-        # Update DB
-        cursor = self.connection.cursor()
-        query = """
-            UPDATE public.users 
-            SET name=%s, location=%s, posts=%s, img_url=%s, 
-            geometry=ST_SetSRID(ST_MakePoint(%s, %s), 4326) 
-            WHERE id=%s
-        """
-        cursor.execute(query, (user.name, user.location, user.posts, user.img_url, user.coords[1], user.coords[0], user.id))
-        self.connection.commit()
+        self.events = []
+        self.artists = []
+        self.employees = []
         
-        return user
+        self.add_event(Event("Festiwal JUWE FEST", "Stadion Narodowy, Warszawa"))
+        self.add_event(Event("Koncert Sanah", "Torwar, Warszawa"))
+        self.add_artist(Artist('Piotr Krawczyk','PiKra','Piłsudskiego, Ząbki','Festiwal JUWE FEST'))
+        self.add_artist(Artist('Tomasz Pajączek','Tomi','Jana Pawła, Radzymin','Koncert Sanah'))
+        self.add_employee(Employee('Adrian Nowak', 'Bramkarz', 'Nowy Świat, Warszawa', "Festiwal JUWE FEST"))
+        self.add_employee(Employee('Beata Nowicka', 'Piwo', 'Łomianki', "Koncert Sanah"))
+        
+    def fetch_events(self):
+        return self.events
+    
+    def fetch_artists(self):
+        return self.artists
+
+    def fetch_employees(self):
+        return self.employees    
+    
+    def add_event(self, event):
+        self.events.append(event)
+    def add_artist(self, artist):
+        self.artists.append(artist)
+    def add_employee(self, emp):
+        self.employees.append(emp)
+        
+    def delete_event(self, index):
+        if 0 <= index < len(self.events):
+            del self.events[index]
+
+    def delete_artist(self, index):
+        if 0 <= index < len(self.artists):
+            del self.artists[index]
+
+    def delete_employee(self, index):
+        if 0 <= index < len(self.employees):
+            del self.employees[index]
+
+    def update_event(self, index, new_data):
+            
+        if 0<=index:
+            event=self.events[index]
+            oldname=event.name
+            newname=new_data['p1']
+            event.name=newname
+            event.location=new_data['p2']
+            event.coords=get_coords_osm(event.location)
+            if oldname!=newname:
+                for a in self.artists:
+                    if a.event_name==oldname:
+                        a.event_name=newname
+                for e in self.employees:
+                    if e.event_name==oldname:
+                        e.event_name=newname
+
+    def update_artist(self, index, new_data):
+        if 0 <= index < len(self.artists):
+            art = self.artists[index]
+            art.full_name = new_data['p1']
+            art.location = new_data['p2']
+            art.nickname = new_data['p3']
+            art.event_name = new_data['p4']
+            art.coords = get_coords_osm(art.location)
+
+    def update_employee(self, index, new_data):
+        if 0 <= index < len(self.employees):
+            emp = self.employees[index]
+            emp.full_name = new_data['p1']
+            emp.location = new_data['p2']
+            emp.role = new_data['p3']
+            emp.event_name = new_data['p4']
+            emp.coords = get_coords_osm(emp.location)
+    
+    

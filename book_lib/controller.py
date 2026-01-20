@@ -49,10 +49,10 @@ class MapbookController:
         show_events=self.view.var_show_events.get()
         filter_value=self.view.combo_filter.get()
         for event in self.events:
-            self.view.listbox_event.insert('end', event.name)
+            self.view.listbox_event.insert('end', f"{event.name}, {event.location}")
             if show_events == True:
                 if filter_value=="Wszystkie" or filter_value==event.name:
-                    self.addmarker(event.coords, f"{event.name}, {event.location}", 'green')
+                    self.addmarker(event.coords, event.name, 'green')
             
         self.update_people_lists()
         
